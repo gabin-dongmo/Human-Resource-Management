@@ -16,13 +16,22 @@ public class Name : ValueObject
 
     public static Result<Name, Error> Create(string firstName, string lastName)
     {
+        var firstNameNullOrEmptyRule = CheckRule(new NotNullOrEmptyNameRule(firstName, nameof(FirstName)));
+        if (firstNameNullOrEmptyRule.IsFailure)
+            return Error.Deserialize(firstNameNullOrEmptyRule.Error);
+
+        var lastNameNullOrEmptyRule = CheckRule(new NotNullOrEmptyNameRule(lastName, nameof(LastName)));
+        if (lastNameNullOrEmptyRule.IsFailure)
+            return Error.Deserialize(lastNameNullOrEmptyRule.Error);
+
         var firstNameRule = CheckRule(new ValidNameRule(firstName));
         if (firstNameRule.IsFailure)
-            return firstNameRule.Value;
+            return Error.Deserialize(firstNameRule.Error);
         
         var lastNameRule = CheckRule(new ValidNameRule(lastName));
         if (lastNameRule.IsFailure)
-            return lastNameRule.Value;
+            return Error.Deserialize(lastNameRule.Error);
+        
         return new Name(firstName, lastName);
     }
 

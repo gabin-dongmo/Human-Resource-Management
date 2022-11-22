@@ -14,9 +14,14 @@ public class EmailAddress : ValueObject
 
     public static Result<EmailAddress, Error> Create(string email)
     {
-        var rule = CheckRule(new ValidEmailAddressRule(email));
-        if (rule.IsFailure)
-            return rule.Value;
+        var notNullOrEmptyRule = CheckRule(new NotNullOrEmptyEmailAddressRule(email, nameof(Email)));
+        if (notNullOrEmptyRule.IsFailure)
+            return Error.Deserialize(notNullOrEmptyRule.Error);
+
+        var validEmailRule = CheckRule(new ValidEmailAddressRule(email));
+        if (validEmailRule.IsFailure)
+            return Error.Deserialize(validEmailRule.Error);
+
         return new EmailAddress(email);
     }
 

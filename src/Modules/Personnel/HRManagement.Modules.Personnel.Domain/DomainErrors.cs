@@ -16,4 +16,9 @@ public static class DomainErrors
     {
         return new Error("value.not.valid", $"{name} is not a valid name");
     }
+
+    public static Error NullOrEmptyName(string fieldName)
+    {
+        return new Error("value.not.valid", $"The field {fieldName} cannot be null or empty.");
+    }
 }

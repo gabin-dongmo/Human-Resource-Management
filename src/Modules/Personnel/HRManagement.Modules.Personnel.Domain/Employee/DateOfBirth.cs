@@ -16,7 +16,7 @@ public class DateOfBirth : ValueObject
     {
         var rule = CheckRule(new DateOfBirthNotInFutureRule(date));
         if (rule.IsFailure)
-            return rule.Value;
+            return Error.Deserialize(rule.Error);
         return new DateOfBirth(date);
     }
 
