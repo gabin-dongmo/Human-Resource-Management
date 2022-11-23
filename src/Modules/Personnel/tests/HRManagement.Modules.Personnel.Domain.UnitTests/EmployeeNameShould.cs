@@ -9,7 +9,7 @@ public class EmployeeNameShould
 {
     [Theory]
     [ClassData(typeof(NameNotAllowsInvalidFirstAndLatNameTestData))]
-    public void NotAllowInvalidFirstAndLastName(string firstName, string lastName)
+    public void Fail_OnCreation_IfFirstAndLastNameInvalid(string firstName, string lastName)
     {
         var nameCreation = Name.Create(firstName, lastName);
         

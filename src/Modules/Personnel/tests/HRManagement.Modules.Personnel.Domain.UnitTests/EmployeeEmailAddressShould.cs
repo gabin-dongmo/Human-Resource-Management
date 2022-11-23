@@ -9,7 +9,7 @@ public class EmployeeEmailAddressShould
 {
     [Theory]
     [ClassData(typeof(EmailAddressNotInvalidTestData))]
-    public void NotBeInvalid(string emailAddress)
+    public void Fail_OnCreation_IfInvalid(string emailAddress)
     {
         var emailCreation = EmailAddress.Create(emailAddress);
         

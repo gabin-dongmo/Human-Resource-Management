@@ -8,7 +8,7 @@ namespace HRManagement.Modules.Personnel.Domain.UnitTests;
 public class EmployeeDateOfBirthShould
 {
     [Fact]
-    public void NotBeInTheFuture()
+    public void Fail_OnCreation_IfDateInFuture()
     {
         var dateCreation = DateOfBirth.Create(new Faker().Date.FutureDateOnly());
 
