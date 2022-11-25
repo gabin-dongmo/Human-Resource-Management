@@ -1,11 +1,11 @@
-﻿using AutoFixture;
+﻿using System.Linq.Expressions;
+using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
 using Bogus;
 using HRManagement.Modules.Personnel.Application.Contracts;
 using HRManagement.Modules.Personnel.Application.DTOs;
 using HRManagement.Modules.Personnel.Application.Features.Employee;
-using HRManagement.Modules.Personnel.Domain;
 using HRManagement.Modules.Personnel.Domain.Employee;
 using Moq;
 using Shouldly;
@@ -13,10 +13,10 @@ using Xunit;
 
 namespace HRManagement.Modules.Personnel.Application.UnitTests;
 
-public class GetEmployeeHandlerShould
+public class GetEmployeesHandlerShould
 {
     [Fact]
-    public async Task ReturnEmployee_WhenEmployeeExists()
+    public async Task ReturnListOfEmployees_WhenCalled()
     {
         var fixture = SetFixture(out var mockEmployeeRepo, out var mockMapper);
         var person = new Faker().Person;
@@ -32,27 +32,18 @@ public class GetEmployeeHandlerShould
             EmailAddress = person.Email,
             HireDate = employee.HireDate
         };
-        mockEmployeeRepo.Setup(d => d.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(employee);
-        mockMapper.Setup(x => x.Map<EmployeeDto>(It.IsAny<Employee>())).Returns(employeeDto);
-        var sut = fixture.Create<GetEmployeeHandler>();
+        mockEmployeeRepo
+            .Setup(d => d.GetAsync(It.IsAny<Expression<Func<Employee, bool>>>(), It.IsAny<Func<IQueryable<Employee>, IOrderedQueryable<Employee>>>()))
+            .ReturnsAsync(new List<Employee> {employee});
+        mockMapper
+            .Setup(x => x.Map<List<EmployeeDto>>(It.IsAny<List<Employee>>()))
+            .Returns(new List<EmployeeDto> {employeeDto});
+        var sut = fixture.Create<GetEmployeesHandler>();
 
-        var result = await sut.Handle(fixture.Create<GetEmployee>(), CancellationToken.None);
+        var result = await sut.Handle(fixture.Create<GetEmployees>(), CancellationToken.None);
 
         result.Value.ShouldNotBeNull();
-        result.Value.FirstName.ShouldBe(person.FirstName);
-    }
-
-    [Fact]
-    public async Task ReturnError_WhenEmployeeDoesNotExist()
-    {
-        var fixture = SetFixture(out var mock, out _);
-        mock.Setup(d => d.GetByIdAsync(It.IsAny<Guid>()))!.ReturnsAsync(default(Employee));
-        var sut = fixture.Create<GetEmployeeHandler>();
-
-        var result = await sut.Handle(fixture.Create<GetEmployee>(), CancellationToken.None);
-
-        result.Error.ShouldNotBeNull();
-        result.Error.Code.ShouldBe(DomainErrors.NotFound(It.IsAny<string>(), It.IsAny<Guid>()).Code);
+        result.Value.First().FirstName.ShouldBe(person.FirstName);
     }
 
     private static IFixture SetFixture(out Mock<IEmployeeRepository> mockEmployeeRepo, out Mock<IMapper> mockMapper)
