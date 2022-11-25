@@ -1,0 +1,11 @@
+using CSharpFunctionalExtensions;
+using HRManagement.Modules.Personnel.Application.Contracts.Handlers;
+using HRManagement.Modules.Personnel.Application.DTOs;
+using HRManagement.Modules.Personnel.Domain;
+
+namespace HRManagement.Modules.Personnel.Application.Features.Employee;
+
+public class GetEmployee : IQuery<Result<EmployeeDto, Error>>
+{
+    public Guid EmployeeId { get; set; }
+}
