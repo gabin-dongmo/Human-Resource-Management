@@ -12,12 +12,18 @@ public class DateOfBirth : ValueObject
         Date = date;
     }
 
-    public static Result<DateOfBirth, Error> Create(DateOnly date)
+    public static Result<DateOfBirth, Error> Create(string date)
     {
-        var rule = CheckRule(new DateOfBirthNotInFutureRule(date));
+        var actualDateRule = CheckRule(new DateOfBirthMustBeActualDateRule(date));
+        if (actualDateRule.IsFailure)
+            return Error.Deserialize(actualDateRule.Error);
+
+        var actualDate = DateOnly.FromDateTime(DateTime.Parse(date));
+        
+        var rule = CheckRule(new DateOfBirthNotInFutureRule(actualDate));
         if (rule.IsFailure)
             return Error.Deserialize(rule.Error);
-        return new DateOfBirth(date);
+        return new DateOfBirth(actualDate);
     }
 
     protected override IEnumerable<object> GetEqualityComponents()

@@ -21,7 +21,7 @@ public class NameEmailAddressOrDOBTestData : TheoryData<Name, EmailAddress, Date
         var person = new Faker().Person;
         var name = Name.Create(person.FirstName, person.LastName).Value;
         var emailAddress = EmailAddress.Create(person.Email).Value;
-        var dateOfBirth = DateOfBirth.Create(DateOnly.FromDateTime(person.DateOfBirth)).Value;
+        var dateOfBirth = DateOfBirth.Create(person.DateOfBirth.ToString("d")).Value;
 
         Add(null!, null!, null!);        
         Add(name, null!, null!);        

@@ -23,7 +23,7 @@ public class GetEmployeesHandlerShould
         var employee = Employee.Create(
             Name.Create(person.FirstName, person.LastName).Value,
             EmailAddress.Create(person.Email).Value,
-            DateOfBirth.Create(DateOnly.FromDateTime(person.DateOfBirth)).Value).Value;
+            DateOfBirth.Create(person.DateOfBirth.ToString("d")).Value).Value;
         var employeeDto = new EmployeeDto
         {
             FirstName = person.FirstName,
