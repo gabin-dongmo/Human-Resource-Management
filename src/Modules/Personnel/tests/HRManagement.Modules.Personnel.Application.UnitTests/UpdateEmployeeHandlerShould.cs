@@ -64,7 +64,7 @@ public class UpdateEmployeeHandlerShould
         var result = await sut.Handle(updateEmployee, CancellationToken.None);
 
         result.Error.ShouldNotBeNull();
-        result.Error.Code.ShouldBe(DomainErrors.NotFound(nameof(Employee), updateEmployee.Id).Code);
+        result.Error.Code.ShouldBe(DomainErrors.NotFound(nameof(Employee), updateEmployee.EmployeeId).Code);
     }
     
     [Fact]
@@ -74,10 +74,18 @@ public class UpdateEmployeeHandlerShould
         var person = new Faker().Person;
         var employee = BuildFakeEmployee(person);
         var updateEmployee = BuildFakeCommand(person);
-        updateEmployee.FirstName += " Updated";
         mockEmployeeRepo
             .Setup(d => d.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(() => employee);
+        mockEmployeeRepo
+            .Setup(d => d.CommitAsync())
+            .Callback(() =>
+            {
+                var name = Name.Create($"{updateEmployee.FirstName} Updated", updateEmployee.LastName).Value;
+                var email = EmailAddress.Create(updateEmployee.EmailAddress).Value;
+                var dateOfBirth = DateOfBirth.Create(updateEmployee.DateOfBirth).Value;
+                employee.Update(name, email, dateOfBirth);
+            });
         var sut = fixture.Create<UpdateEmployeeHandler>();
 
         var result = await sut.Handle(updateEmployee, CancellationToken.None);
@@ -106,7 +114,7 @@ public class UpdateEmployeeHandlerShould
     {
         var hireEmployee = new UpdateEmployee
         {
-            Id = Guid.NewGuid().ToString(),
+            EmployeeId = Guid.NewGuid().ToString(),
             EmailAddress = person.Email,
             FirstName = person.FirstName,
             LastName = person.LastName,

@@ -8,7 +8,7 @@ public class Employee : Entity<Guid>
     public EmailAddress EmailAddress { get; private set; }
     public DateOfBirth DateOfBirth { get; private set; }
     public DateOnly HireDate { get; }
-    public DateOnly? TerminationDate { get; }
+    public DateOnly? TerminationDate { get; private set; }
 
     private Employee(Name name, EmailAddress emailAddress, DateOfBirth dateOfBirth)
     {
@@ -36,5 +36,10 @@ public class Employee : Entity<Guid>
         Name = name;
         EmailAddress = emailAddress;
         DateOfBirth = dateOfBirth;
+    }
+
+    public void Terminate()
+    {
+        TerminationDate = DateOnly.FromDateTime(DateTime.Now);
     }
 }
