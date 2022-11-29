@@ -15,7 +15,7 @@ namespace HRManagement.Modules.Personnel.Application.UnitTests;
 public class HireEmployeeHandlerShould
 {
     [Theory]
-    [ClassData(typeof(InvalidNameTestData))]
+    [ClassData(typeof(InvalidNameOnCreationTestData))]
     public async Task ReturnError_WhenNameInvalid(HireEmployee hireEmployee)
     {
         var fixture = SetFixture(out _);
@@ -27,7 +27,7 @@ public class HireEmployeeHandlerShould
     }
 
     [Theory]
-    [ClassData(typeof(InvalidEmailTestData))]
+    [ClassData(typeof(InvalidEmailOnCreationTestData))]
     public async Task ReturnError_WhenEmailInvalid(HireEmployee hireEmployee)
     {
         var fixture = SetFixture(out _);
@@ -55,14 +55,12 @@ public class HireEmployeeHandlerShould
     {
         var fixture = SetFixture(out var mockEmployeeRepo);
         var person = new Faker().Person;
-        var employee = BuildFakeEmployee(person);
-        var hireEmployee = BuildFakeCommand(person);
         mockEmployeeRepo
             .Setup(d => d.GetAsync(It.IsAny<Expression<Func<Employee,bool>>>(), It.IsAny<Func<IQueryable<Employee>, IOrderedQueryable<Employee>>>()))
-            .ReturnsAsync(new List<Employee>{employee});
+            .ReturnsAsync(new List<Employee> {BuildFakeEmployee(person)});
         var sut = fixture.Create<HireEmployeeHandler>();
 
-        var result = await sut.Handle(hireEmployee, CancellationToken.None);
+        var result = await sut.Handle(BuildFakeCommand(person), CancellationToken.None);
 
         result.Error.ShouldNotBeNull();
         result.Error.Code.ShouldBe(DomainErrors.ResourceAlreadyExists().Code);
@@ -129,9 +127,9 @@ public class InvalidDateOfBirthTestData : TheoryData<HireEmployee>
     }
 }
 
-public class InvalidEmailTestData : TheoryData<HireEmployee>
+public class InvalidEmailOnCreationTestData : TheoryData<HireEmployee>
 {
-    public InvalidEmailTestData()
+    public InvalidEmailOnCreationTestData()
     {
         var person = new Faker().Person;
 
@@ -141,9 +139,9 @@ public class InvalidEmailTestData : TheoryData<HireEmployee>
     }
 }
 
-public class InvalidNameTestData : TheoryData<HireEmployee>
+public class InvalidNameOnCreationTestData : TheoryData<HireEmployee>
 {
-    public InvalidNameTestData()
+    public InvalidNameOnCreationTestData()
     {
         var person = new Faker().Person;
         

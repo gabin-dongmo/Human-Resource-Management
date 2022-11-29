@@ -18,7 +18,6 @@
 
     <ItemGroup>
       <Folder Include="Features\Employee\Terminate" />
-      <Folder Include="Features\Employee\Update" />
     </ItemGroup>
 
 </Project>
