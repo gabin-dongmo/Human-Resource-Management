@@ -22,13 +22,30 @@ public class GetEmployeeHandlerShould
         var person = PrepareData();
         PrepareMocks(mockEmployeeRepo, mockMapper, person);
         var sut = fixture.Create<GetEmployeeHandler>();
+        var getEmployee = fixture.Create<GetEmployee>();
+        getEmployee.EmployeeId = Guid.NewGuid().ToString();
 
-        var result = await sut.Handle(fixture.Create<GetEmployee>(), CancellationToken.None);
+        var result = await sut.Handle(getEmployee, CancellationToken.None);
 
         result.Value.ShouldNotBeNull();
         result.Value.FirstName.ShouldBe(person.FirstName);
     }
 
+    [Fact]
+    public async Task ReturnNotFoundError_WhenProvidedKeyInvalid()
+    {
+        var fixture = SetFixture(out _, out _);
+        var sut = fixture.Create<GetEmployeeHandler>();
+        var getEmployee = fixture.Create<GetEmployee>();
+        var invalidEmployeeId = new Faker().Random.AlphaNumeric(9);
+        getEmployee.EmployeeId = invalidEmployeeId;
+
+        var result = await sut.Handle(getEmployee, CancellationToken.None);
+
+        result.Error.ShouldNotBeNull();
+        result.Error.ShouldBeEquivalentTo(DomainErrors.NotFound(nameof(Employee), invalidEmployeeId));
+    }
+    
     [Fact]
     public async Task ReturnError_WhenEmployeeDoesNotExist()
     {

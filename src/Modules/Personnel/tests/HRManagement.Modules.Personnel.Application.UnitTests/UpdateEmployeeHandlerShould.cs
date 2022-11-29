@@ -51,6 +51,21 @@ public class UpdateEmployeeHandlerShould
     }
 
     [Fact]
+    public async Task ReturnNotFoundError_WhenProvidedKeyInvalid()
+    {
+        var fixture = SetFixture(out _);
+        var sut = fixture.Create<UpdateEmployeeHandler>();
+        var updateEmployee = fixture.Create<UpdateEmployee>();
+        var invalidEmployeeId = new Faker().Random.AlphaNumeric(9);
+        updateEmployee.EmployeeId = invalidEmployeeId;
+
+        var result = await sut.Handle(updateEmployee, CancellationToken.None);
+
+        result.Error.ShouldNotBeNull();
+        result.Error.ShouldBeEquivalentTo(DomainErrors.NotFound(nameof(Employee), invalidEmployeeId));
+    }
+
+    [Fact]
     public async Task ReturnError_WhenEmployeeNotFound()
     {
         var fixture = SetFixture(out var mockEmployeeRepo);

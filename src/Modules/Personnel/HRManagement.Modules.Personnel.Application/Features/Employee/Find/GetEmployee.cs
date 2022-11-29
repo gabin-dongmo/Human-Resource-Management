@@ -7,5 +7,5 @@ namespace HRManagement.Modules.Personnel.Application.Features.Employee;
 
 public class GetEmployee : IQuery<Result<EmployeeDto, Error>>
 {
-    public Guid EmployeeId { get; set; }
+    public string EmployeeId { get; set; }
 }

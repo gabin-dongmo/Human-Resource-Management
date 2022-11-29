@@ -20,7 +20,10 @@ public class GetEmployeeHandler : IQueryHandler<GetEmployee, Result<EmployeeDto,
 
     public async Task<Result<EmployeeDto, Error>> Handle(GetEmployee request, CancellationToken cancellationToken)
     {
-        Maybe<Domain.Employee.Employee> employee = await _repository.GetByIdAsync(request.EmployeeId);
+        if (!Guid.TryParse(request.EmployeeId, out var employeeId)) 
+            return DomainErrors.NotFound(nameof(Domain.Employee.Employee), request.EmployeeId);
+
+        Maybe<Domain.Employee.Employee> employee = await _repository.GetByIdAsync(employeeId);
         if (employee.HasNoValue)
             return DomainErrors.NotFound(nameof(Domain.Employee.Employee), request.EmployeeId);
 

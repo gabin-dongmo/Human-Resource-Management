@@ -15,6 +15,21 @@ namespace HRManagement.Modules.Personnel.Application.UnitTests;
 public class TerminateEmployeeHandlerShould
 {
     [Fact]
+    public async Task ReturnNotFoundError_WhenProvidedKeyInvalid()
+    {
+        var fixture = SetFixture(out _);
+        var sut = fixture.Create<TerminateEmployeeHandler>();
+        var terminateEmployee = fixture.Create<TerminateEmployee>();
+        var invalidEmployeeId = new Faker().Random.AlphaNumeric(9);
+        terminateEmployee.EmployeeId = invalidEmployeeId;
+
+        var result = await sut.Handle(terminateEmployee, CancellationToken.None);
+
+        result.Error.ShouldNotBeNull();
+        result.Error.ShouldBeEquivalentTo(DomainErrors.NotFound(nameof(Employee), invalidEmployeeId));
+    }
+
+    [Fact]
     public async Task ReturnError_WhenEmployeeNotFound()
     {
         var fixture = SetFixture(out var mockEmployeeRepo);
