@@ -40,6 +40,7 @@ public class HireEmployeeHandler : ICommandHandler<HireEmployee, Result<Guid, Er
         if (employeeCreation.IsFailure) return employeeCreation.Error;
 
         var employeeId = await _repository.AddAsync(employeeCreation.Value);
+        await _repository.CommitAsync();
 
         return employeeId;
     }
