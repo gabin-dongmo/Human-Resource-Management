@@ -69,19 +69,23 @@ public class HireEmployeeHandlerShould
     }
 
     [Fact]
-    public async Task ReturnEmployeeId_WhenHiringSuccessful()
+    public async Task StoreNewEmployeeAndReturnEmployeeId_WhenHiringSuccessful()
     {
         var fixture = SetFixture(out var mockEmployeeRepo);
         var person = new Faker().Person;
-        var hireEmployee = BuildFakeCommand(person);
+        var employeesRepo = new List<Employee>();
         mockEmployeeRepo
             .Setup(d => d.GetAsync(It.IsAny<Expression<Func<Employee,bool>>>(), It.IsAny<Func<IQueryable<Employee>, IOrderedQueryable<Employee>>>()))
             .ReturnsAsync(new List<Employee>());
+        mockEmployeeRepo
+            .Setup(d => d.CommitAsync())
+            .Callback(() => employeesRepo.Add(BuildFakeEmployee(person)));
         var sut = fixture.Create<HireEmployeeHandler>();
 
-        var result = await sut.Handle(hireEmployee, CancellationToken.None);
+        var result = await sut.Handle(BuildFakeCommand(person), CancellationToken.None);
 
         result.Value.ShouldBe(Guid.Empty);
+        employeesRepo.Count.ShouldBe(1);
     }
     
     private static IFixture SetFixture(out Mock<IEmployeeRepository> mockEmployeeRepo)
