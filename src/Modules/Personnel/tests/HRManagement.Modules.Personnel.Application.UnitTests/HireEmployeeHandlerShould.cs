@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using AutoMapper;
 using Bogus;
 using HRManagement.Modules.Personnel.Application.Contracts;
 using HRManagement.Modules.Personnel.Application.Features.Employee;
@@ -17,18 +16,10 @@ public class HireEmployeeHandlerShould
 {
     [Theory]
     [ClassData(typeof(InvalidNameTestData))]
-    public async Task ReturnError_WhenNameInvalid(string firstName, string lastName)
+    public async Task ReturnError_WhenNameInvalid(HireEmployee hireEmployee)
     {
-        var fixture = SetFixture(out _, out _);
+        var fixture = SetFixture(out _);
         var sut = fixture.Create<HireEmployeeHandler>();
-        var person = new Faker().Person;
-        var hireEmployee = new HireEmployee
-        {
-            EmailAddress = person.Email,
-            FirstName = firstName,
-            LastName = lastName,
-            DateOfBirth = person.DateOfBirth.ToString("d")
-        };
 
         var result = await sut.Handle(hireEmployee, CancellationToken.None);
 
@@ -37,58 +28,35 @@ public class HireEmployeeHandlerShould
 
     [Theory]
     [ClassData(typeof(InvalidEmailTestData))]
-    public async Task ReturnError_WhenEmailInvalid(string email)
+    public async Task ReturnError_WhenEmailInvalid(HireEmployee hireEmployee)
     {
-        var fixture = SetFixture(out _, out _);
+        var fixture = SetFixture(out _);
         var sut = fixture.Create<HireEmployeeHandler>();
-        var person = new Faker().Person;
-        var hireEmployee = new HireEmployee
-        {
-            EmailAddress = email,
-            FirstName = person.FirstName,
-            LastName = person.LastName,
-            DateOfBirth = person.DateOfBirth.ToString("d")
-        };
 
         var result = await sut.Handle(hireEmployee, CancellationToken.None);
 
         result.Error.ShouldNotBeNull();
     }
-    
+
     [Theory]
     [ClassData(typeof(InvalidDateOfBirthTestData))]
-    public async Task ReturnError_WhenDateOfBirthInvalid(string dateOfBirth)
+    public async Task ReturnError_WhenDateOfBirthInvalid(HireEmployee hireEmployee)
     {
-        var fixture = SetFixture(out _, out _);
+        var fixture = SetFixture(out _);
         var sut = fixture.Create<HireEmployeeHandler>();
-        var person = new Faker().Person;
-        var hireEmployee = new HireEmployee
-        {
-            EmailAddress = person.Email,
-            FirstName = person.FirstName,
-            LastName = person.LastName,
-            DateOfBirth = dateOfBirth
-        };
 
         var result = await sut.Handle(hireEmployee, CancellationToken.None);
-
+        
         result.Error.ShouldNotBeNull();
     }
 
     [Fact]
     public async Task ReturnError_WhenEmployeeAlreadyExists()
     {
-        var fixture = SetFixture(out var mockEmployeeRepo, out _);
+        var fixture = SetFixture(out var mockEmployeeRepo);
         var person = new Faker().Person;
-        var employee = Employee.Create(
-            Name.Create(person.FirstName, person.LastName).Value,
-            EmailAddress.Create(person.Email).Value,
-            DateOfBirth.Create(person.DateOfBirth.ToString("d")).Value).Value;
-        var hireEmployee = fixture.Create<HireEmployee>();
-        hireEmployee.FirstName = person.FirstName;
-        hireEmployee.LastName = person.LastName;
-        hireEmployee.DateOfBirth = person.DateOfBirth.ToString("d");
-        hireEmployee.EmailAddress = person.Email;
+        var employee = BuildFakeEmployee(person);
+        var hireEmployee = BuildFakeCommand(person);
         mockEmployeeRepo
             .Setup(d => d.GetAsync(It.IsAny<Expression<Func<Employee,bool>>>(), It.IsAny<Func<IQueryable<Employee>, IOrderedQueryable<Employee>>>()))
             .ReturnsAsync(new List<Employee>{employee});
@@ -103,13 +71,9 @@ public class HireEmployeeHandlerShould
     [Fact]
     public async Task ReturnEmployeeId_WhenHiringSuccessful()
     {
-        var fixture = SetFixture(out var mockEmployeeRepo, out _);
+        var fixture = SetFixture(out var mockEmployeeRepo);
         var person = new Faker().Person;
-        var hireEmployee = fixture.Create<HireEmployee>();
-        hireEmployee.FirstName = person.FirstName;
-        hireEmployee.LastName = person.LastName;
-        hireEmployee.DateOfBirth = person.DateOfBirth.ToString("d");
-        hireEmployee.EmailAddress = person.Email;
+        var hireEmployee = BuildFakeCommand(person);
         mockEmployeeRepo
             .Setup(d => d.GetAsync(It.IsAny<Expression<Func<Employee,bool>>>(), It.IsAny<Func<IQueryable<Employee>, IOrderedQueryable<Employee>>>()))
             .ReturnsAsync(new List<Employee>());
@@ -120,48 +84,72 @@ public class HireEmployeeHandlerShould
         result.Value.ShouldBe(Guid.Empty);
     }
     
-    private static IFixture SetFixture(out Mock<IEmployeeRepository> mockEmployeeRepo, out Mock<IMapper> mockMapper)
+    private static IFixture SetFixture(out Mock<IEmployeeRepository> mockEmployeeRepo)
     {
         var fixture = new Fixture().Customize(new AutoMoqCustomization());
         mockEmployeeRepo = fixture.Freeze<Mock<IEmployeeRepository>>();
-        mockMapper = fixture.Freeze<Mock<IMapper>>();
         return fixture;
+    }
+
+    private static Employee BuildFakeEmployee(Person person)
+    {
+        var employee = Employee.Create(
+            Name.Create(person.FirstName, person.LastName).Value,
+            EmailAddress.Create(person.Email).Value,
+            DateOfBirth.Create(person.DateOfBirth.ToString("d")).Value).Value;
+        return employee;
+    }
+
+    private static HireEmployee BuildFakeCommand(Person person)
+    {
+        var hireEmployee = new HireEmployee
+        {
+            EmailAddress = person.Email,
+            FirstName = person.FirstName,
+            LastName = person.LastName,
+            DateOfBirth = person.DateOfBirth.ToString("d")
+        };
+        return hireEmployee;
     }
 }
 
-public class InvalidDateOfBirthTestData : TheoryData<string>
+public class InvalidDateOfBirthTestData : TheoryData<HireEmployee>
 {
     public InvalidDateOfBirthTestData()
     {
-        Add(null!);
-        Add(string.Empty);
-        Add(new Faker().Random.AlphaNumeric(9));
+        var person = new Faker().Person;
+
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = null!});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = string.Empty});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = new Faker().Random.AlphaNumeric(9)});
     }
 }
 
-public class InvalidEmailTestData : TheoryData<string>
+public class InvalidEmailTestData : TheoryData<HireEmployee>
 {
     public InvalidEmailTestData()
     {
-        Add(null!);
-        Add(string.Empty);
-        Add(new Faker().Random.AlphaNumeric(9));
+        var person = new Faker().Person;
+
+        Add(new HireEmployee {EmailAddress = null!, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = string.Empty, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = new Faker().Random.AlphaNumeric(9), FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
     }
 }
 
-public class InvalidNameTestData : TheoryData<string, string>
+public class InvalidNameTestData : TheoryData<HireEmployee>
 {
     public InvalidNameTestData()
     {
         var person = new Faker().Person;
         
-        Add(null!, person.LastName);
-        Add(string.Empty, person.LastName);
-        Add(null!, new Faker().Random.AlphaNumeric(9));
-        Add(string.Empty, new Faker().Random.AlphaNumeric(9));
-        Add(person.FirstName, null!);
-        Add(person.FirstName, string.Empty);
-        Add(new Faker().Random.AlphaNumeric(9), null!);
-        Add(new Faker().Random.AlphaNumeric(9), string.Empty);
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = null!, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = string.Empty, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = null!, LastName = new Faker().Random.AlphaNumeric(9), DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = string.Empty, LastName = new Faker().Random.AlphaNumeric(9), DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = person.FirstName, LastName = null!, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = person.FirstName, LastName = string.Empty, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = new Faker().Random.AlphaNumeric(9), LastName = null!, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(new HireEmployee {EmailAddress = person.Email, FirstName = new Faker().Random.AlphaNumeric(9), LastName = string.Empty, DateOfBirth = person.DateOfBirth.ToString("d")});
     }
 }
