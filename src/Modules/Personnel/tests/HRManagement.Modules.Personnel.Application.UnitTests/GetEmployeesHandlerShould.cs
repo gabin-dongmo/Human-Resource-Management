@@ -28,9 +28,9 @@ public class GetEmployeesHandlerShould
         {
             FirstName = person.FirstName,
             LastName = person.LastName,
-            DateOfBirth = DateOnly.FromDateTime(person.DateOfBirth),
+            DateOfBirth = DateOnly.FromDateTime(person.DateOfBirth).ToShortDateString(),
             EmailAddress = person.Email,
-            HireDate = employee.HireDate
+            HireDate = employee.HireDate.ToShortDateString()
         };
         mockEmployeeRepo
             .Setup(d => d.GetAsync(It.IsAny<Expression<Func<Employee, bool>>>(), It.IsAny<Func<IQueryable<Employee>, IOrderedQueryable<Employee>>>()))

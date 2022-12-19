@@ -12,57 +12,58 @@ using Xunit;
 
 namespace HRManagement.Modules.Personnel.Application.UnitTests;
 
-public class TerminateEmployeeHandlerShould
+public class HardDeleteEmployeeHandlerShould
 {
     [Fact]
     public async Task ReturnNotFoundError_WhenProvidedKeyInvalid()
     {
         var fixture = SetFixture(out _);
-        var sut = fixture.Create<TerminateEmployeeHandler>();
-        var terminateEmployee = fixture.Create<TerminateEmployee>();
+        var sut = fixture.Create<HardDeleteEmployeeHandler>();
+        var hardDeleteEmployee = fixture.Create<HardDeleteEmployee>();
         var invalidEmployeeId = new Faker().Random.AlphaNumeric(9);
-        terminateEmployee.EmployeeId = invalidEmployeeId;
+        hardDeleteEmployee.EmployeeId = invalidEmployeeId;
 
-        var result = await sut.Handle(terminateEmployee, CancellationToken.None);
+        var result = await sut.Handle(hardDeleteEmployee, CancellationToken.None);
 
         result.Error.ShouldNotBeNull();
         result.Error.ShouldBeEquivalentTo(DomainErrors.NotFound(nameof(Employee), invalidEmployeeId));
     }
-
+    
     [Fact]
     public async Task ReturnError_WhenEmployeeNotFound()
     {
         var fixture = SetFixture(out var mockEmployeeRepo);
-        var updateEmployee = BuildFakeCommand();
+        var hardDeleteEmployee = BuildFakeCommand();
         mockEmployeeRepo
             .Setup(d => d.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(() => null!);
-        var sut = fixture.Create<TerminateEmployeeHandler>();
+        var sut = fixture.Create<HardDeleteEmployeeHandler>();
 
-        var result = await sut.Handle(updateEmployee, CancellationToken.None);
+        var result = await sut.Handle(hardDeleteEmployee, CancellationToken.None);
 
         result.Error.ShouldNotBeNull();
-        result.Error.Code.ShouldBe(DomainErrors.NotFound(nameof(Employee), updateEmployee.EmployeeId).Code);
+        result.Error.Code.ShouldBe(DomainErrors.NotFound(nameof(Employee), hardDeleteEmployee.EmployeeId).Code);
     }
 
     [Fact]
-    public async Task TerminateEmployee_WhenEmployeeExists()
+    public async Task HardDeleteEmployee_WhenEmployeeExists()
     {
         var fixture = SetFixture(out var mockEmployeeRepo);
         var person = new Faker().Person;
         var employees = new List<Employee>{BuildFakeEmployee(person)};
-        var terminateEmployee = BuildFakeCommand();
+        var hardDeleteEmployee = BuildFakeCommand();
         mockEmployeeRepo
             .Setup(d => d.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(() => employees.First());
         mockEmployeeRepo
-            .Setup(d => d.CommitAsync());
-        var sut = fixture.Create<TerminateEmployeeHandler>();
+            .Setup(d => d.CommitAsync())
+            .Callback(() => employees.Clear());
+        var sut = fixture.Create<HardDeleteEmployeeHandler>();
 
-        var result = await sut.Handle(terminateEmployee, CancellationToken.None);
+        var result = await sut.Handle(hardDeleteEmployee, CancellationToken.None);
 
         result.Value.ShouldBe(Unit.Value);
-        employees.First().TerminationDate.ShouldNotBeNull();
+        employees.Count.ShouldBe(0);
     }
 
     private static IFixture SetFixture(out Mock<IEmployeeRepository> mockEmployeeRepo)
@@ -81,12 +82,12 @@ public class TerminateEmployeeHandlerShould
         return employee;
     }
 
-    private static TerminateEmployee BuildFakeCommand()
+    private static HardDeleteEmployee BuildFakeCommand()
     {
-        var terminateEmployee = new TerminateEmployee
+        var hireEmployee = new HardDeleteEmployee
         {
             EmployeeId = Guid.NewGuid().ToString()
         };
-        return terminateEmployee;
+        return hireEmployee;
     }
 }

@@ -69,9 +69,9 @@ public class GetEmployeeHandlerShould
         {
             FirstName = person.FirstName,
             LastName = person.LastName,
-            DateOfBirth = DateOnly.FromDateTime(person.DateOfBirth),
+            DateOfBirth = DateOnly.FromDateTime(person.DateOfBirth).ToShortDateString(),
             EmailAddress = person.Email,
-            HireDate = employee.HireDate
+            HireDate = employee.HireDate.ToShortDateString()
         };
         mockEmployeeRepo.Setup(d => d.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(employee);
         mockMapper.Setup(x => x.Map<EmployeeDto>(It.IsAny<Employee>())).Returns(employeeDto);
