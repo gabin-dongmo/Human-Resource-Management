@@ -13,7 +13,7 @@ using Xunit;
 
 namespace HRManagement.Modules.Personnel.Application.UnitTests;
 
-public class GetEmployeesHandlerShould
+public class GetEmployeesQueryHandlerShould
 {
     [Fact]
     public async Task ReturnListOfEmployees_WhenCalled()
@@ -38,9 +38,9 @@ public class GetEmployeesHandlerShould
         mockMapper
             .Setup(x => x.Map<List<EmployeeDto>>(It.IsAny<List<Employee>>()))
             .Returns(new List<EmployeeDto> {employeeDto});
-        var sut = fixture.Create<GetEmployeesHandler>();
+        var sut = fixture.Create<GetEmployeesQueryHandler>();
 
-        var result = await sut.Handle(fixture.Create<GetEmployees>(), CancellationToken.None);
+        var result = await sut.Handle(fixture.Create<GetEmployeesQuery>(), CancellationToken.None);
 
         result.Value.ShouldNotBeNull();
         result.Value.First().FirstName.ShouldBe(person.FirstName);

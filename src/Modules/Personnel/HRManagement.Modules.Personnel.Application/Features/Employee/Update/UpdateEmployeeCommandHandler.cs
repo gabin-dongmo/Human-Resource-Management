@@ -7,16 +7,16 @@ using MediatR;
 
 namespace HRManagement.Modules.Personnel.Application.Features.Employee;
 
-public class UpdateEmployeeHandler : ICommandHandler<UpdateEmployee, Result<Unit, Error>>
+public class UpdateEmployeeCommandHandler : ICommandHandler<UpdateEmployeeCommand, Result<Unit, Error>>
 {
     private readonly IEmployeeRepository _repository;
 
-    public UpdateEmployeeHandler(IEmployeeRepository repository)
+    public UpdateEmployeeCommandHandler(IEmployeeRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<Result<Unit, Error>> Handle(UpdateEmployee request, CancellationToken cancellationToken)
+    public async Task<Result<Unit, Error>> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(request.EmployeeId, out var employeeId)) 
             return DomainErrors.NotFound(nameof(Domain.Employee.Employee), request.EmployeeId);

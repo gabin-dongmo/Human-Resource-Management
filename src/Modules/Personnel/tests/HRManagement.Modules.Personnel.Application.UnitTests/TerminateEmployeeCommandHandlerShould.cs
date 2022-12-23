@@ -12,14 +12,14 @@ using Xunit;
 
 namespace HRManagement.Modules.Personnel.Application.UnitTests;
 
-public class TerminateEmployeeHandlerShould
+public class TerminateEmployeeCommandHandlerShould
 {
     [Fact]
     public async Task ReturnNotFoundError_WhenProvidedKeyInvalid()
     {
         var fixture = SetFixture(out _);
-        var sut = fixture.Create<TerminateEmployeeHandler>();
-        var terminateEmployee = fixture.Create<TerminateEmployee>();
+        var sut = fixture.Create<TerminateEmployeeCommandHandler>();
+        var terminateEmployee = fixture.Create<TerminateEmployeeCommand>();
         var invalidEmployeeId = new Faker().Random.AlphaNumeric(9);
         terminateEmployee.EmployeeId = invalidEmployeeId;
 
@@ -37,7 +37,7 @@ public class TerminateEmployeeHandlerShould
         mockEmployeeRepo
             .Setup(d => d.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(() => null!);
-        var sut = fixture.Create<TerminateEmployeeHandler>();
+        var sut = fixture.Create<TerminateEmployeeCommandHandler>();
 
         var result = await sut.Handle(updateEmployee, CancellationToken.None);
 
@@ -57,7 +57,7 @@ public class TerminateEmployeeHandlerShould
             .ReturnsAsync(() => employees.First());
         mockEmployeeRepo
             .Setup(d => d.CommitAsync());
-        var sut = fixture.Create<TerminateEmployeeHandler>();
+        var sut = fixture.Create<TerminateEmployeeCommandHandler>();
 
         var result = await sut.Handle(terminateEmployee, CancellationToken.None);
 
@@ -81,9 +81,9 @@ public class TerminateEmployeeHandlerShould
         return employee;
     }
 
-    private static TerminateEmployee BuildFakeCommand()
+    private static TerminateEmployeeCommand BuildFakeCommand()
     {
-        var terminateEmployee = new TerminateEmployee
+        var terminateEmployee = new TerminateEmployeeCommand
         {
             EmployeeId = Guid.NewGuid().ToString()
         };

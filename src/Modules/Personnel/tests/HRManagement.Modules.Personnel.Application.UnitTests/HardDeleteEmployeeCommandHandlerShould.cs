@@ -12,14 +12,14 @@ using Xunit;
 
 namespace HRManagement.Modules.Personnel.Application.UnitTests;
 
-public class HardDeleteEmployeeHandlerShould
+public class HardDeleteEmployeeCommandHandlerShould
 {
     [Fact]
     public async Task ReturnNotFoundError_WhenProvidedKeyInvalid()
     {
         var fixture = SetFixture(out _);
-        var sut = fixture.Create<HardDeleteEmployeeHandler>();
-        var hardDeleteEmployee = fixture.Create<HardDeleteEmployee>();
+        var sut = fixture.Create<HardDeleteEmployeeCommandHandler>();
+        var hardDeleteEmployee = fixture.Create<HardDeleteEmployeeCommand>();
         var invalidEmployeeId = new Faker().Random.AlphaNumeric(9);
         hardDeleteEmployee.EmployeeId = invalidEmployeeId;
 
@@ -37,7 +37,7 @@ public class HardDeleteEmployeeHandlerShould
         mockEmployeeRepo
             .Setup(d => d.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(() => null!);
-        var sut = fixture.Create<HardDeleteEmployeeHandler>();
+        var sut = fixture.Create<HardDeleteEmployeeCommandHandler>();
 
         var result = await sut.Handle(hardDeleteEmployee, CancellationToken.None);
 
@@ -58,7 +58,7 @@ public class HardDeleteEmployeeHandlerShould
         mockEmployeeRepo
             .Setup(d => d.CommitAsync())
             .Callback(() => employees.Clear());
-        var sut = fixture.Create<HardDeleteEmployeeHandler>();
+        var sut = fixture.Create<HardDeleteEmployeeCommandHandler>();
 
         var result = await sut.Handle(hardDeleteEmployee, CancellationToken.None);
 
@@ -82,9 +82,9 @@ public class HardDeleteEmployeeHandlerShould
         return employee;
     }
 
-    private static HardDeleteEmployee BuildFakeCommand()
+    private static HardDeleteEmployeeCommand BuildFakeCommand()
     {
-        var hireEmployee = new HardDeleteEmployee
+        var hireEmployee = new HardDeleteEmployeeCommand
         {
             EmployeeId = Guid.NewGuid().ToString()
         };

@@ -7,16 +7,16 @@ using HRManagement.Modules.Personnel.Domain.Employee;
 
 namespace HRManagement.Modules.Personnel.Application.Features.Employee;
 
-public class HireEmployeeHandler : ICommandHandler<HireEmployee, Result<Guid, Error>>
+public class HireEmployeeCommandHandler : ICommandHandler<HireEmployeeCommand, Result<Guid, Error>>
 {
     private readonly IEmployeeRepository _repository;
 
-    public HireEmployeeHandler(IEmployeeRepository repository)
+    public HireEmployeeCommandHandler(IEmployeeRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<Result<Guid, Error>> Handle(HireEmployee request, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Error>> Handle(HireEmployeeCommand request, CancellationToken cancellationToken)
     {
         var nameCreation = Name.Create(request.FirstName, request.LastName);
         if (nameCreation.IsFailure) return nameCreation.Error;

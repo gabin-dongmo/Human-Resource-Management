@@ -13,7 +13,7 @@ using Xunit;
 
 namespace HRManagement.Modules.Personnel.Application.UnitTests;
 
-public class GetEmployeeHandlerShould
+public class GetEmployeeQueryHandlerShould
 {
     [Fact]
     public async Task ReturnEmployee_WhenEmployeeExists()
@@ -21,8 +21,8 @@ public class GetEmployeeHandlerShould
         var fixture = SetFixture(out var mockEmployeeRepo, out var mockMapper);
         var person = PrepareData();
         PrepareMocks(mockEmployeeRepo, mockMapper, person);
-        var sut = fixture.Create<GetEmployeeHandler>();
-        var getEmployee = fixture.Create<GetEmployee>();
+        var sut = fixture.Create<GetEmployeeQueryHandler>();
+        var getEmployee = fixture.Create<GetEmployeeQuery>();
         getEmployee.EmployeeId = Guid.NewGuid().ToString();
 
         var result = await sut.Handle(getEmployee, CancellationToken.None);
@@ -35,8 +35,8 @@ public class GetEmployeeHandlerShould
     public async Task ReturnNotFoundError_WhenProvidedKeyInvalid()
     {
         var fixture = SetFixture(out _, out _);
-        var sut = fixture.Create<GetEmployeeHandler>();
-        var getEmployee = fixture.Create<GetEmployee>();
+        var sut = fixture.Create<GetEmployeeQueryHandler>();
+        var getEmployee = fixture.Create<GetEmployeeQuery>();
         var invalidEmployeeId = new Faker().Random.AlphaNumeric(9);
         getEmployee.EmployeeId = invalidEmployeeId;
 
@@ -51,9 +51,9 @@ public class GetEmployeeHandlerShould
     {
         var fixture = SetFixture(out var mock, out _);
         mock.Setup(d => d.GetByIdAsync(It.IsAny<Guid>()))!.ReturnsAsync(default(Employee));
-        var sut = fixture.Create<GetEmployeeHandler>();
+        var sut = fixture.Create<GetEmployeeQueryHandler>();
 
-        var result = await sut.Handle(fixture.Create<GetEmployee>(), CancellationToken.None);
+        var result = await sut.Handle(fixture.Create<GetEmployeeQuery>(), CancellationToken.None);
 
         result.Error.ShouldNotBeNull();
         result.Error.Code.ShouldBe(DomainErrors.NotFound(It.IsAny<string>(), It.IsAny<Guid>()).Code);

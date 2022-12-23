@@ -7,18 +7,18 @@ using HRManagement.Modules.Personnel.Domain;
 
 namespace HRManagement.Modules.Personnel.Application.Features.Employee;
 
-public class GetEmployeesHandler : IQueryHandler<GetEmployees, Result<List<EmployeeDto>, Error>>
+public class GetEmployeesQueryHandler : IQueryHandler<GetEmployeesQuery, Result<List<EmployeeDto>, Error>>
 {
     private readonly IMapper _mapper;
     private readonly IEmployeeRepository _repository;
 
-    public GetEmployeesHandler(IMapper mapper, IEmployeeRepository repository)
+    public GetEmployeesQueryHandler(IMapper mapper, IEmployeeRepository repository)
     {
         _mapper = mapper;
         _repository = repository;
     }
     
-    public async Task<Result<List<EmployeeDto>, Error>> Handle(GetEmployees request, CancellationToken cancellationToken)
+    public async Task<Result<List<EmployeeDto>, Error>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
     {
         var employees = await _repository.GetAsync();
 

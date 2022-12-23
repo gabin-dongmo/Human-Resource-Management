@@ -6,21 +6,16 @@ using MediatR;
 
 namespace HRManagement.Modules.Personnel.Application.Features.Employee;
 
-public class HardDeleteEmployee : ICommand<Result<Unit, Error>>
-{
-    public string EmployeeId { get; set; }
-}
-
-public class HardDeleteEmployeeHandler : ICommandHandler<HardDeleteEmployee, Result<Unit, Error>>
+public class HardDeleteEmployeeCommandHandler : ICommandHandler<HardDeleteEmployeeCommand, Result<Unit, Error>>
 {
     private readonly IEmployeeRepository _repository;
 
-    public HardDeleteEmployeeHandler(IEmployeeRepository repository)
+    public HardDeleteEmployeeCommandHandler(IEmployeeRepository repository)
     {
         _repository = repository;
     }
     
-    public async Task<Result<Unit, Error>> Handle(HardDeleteEmployee request, CancellationToken cancellationToken)
+    public async Task<Result<Unit, Error>> Handle(HardDeleteEmployeeCommand request, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(request.EmployeeId, out var employeeId)) 
             return DomainErrors.NotFound(nameof(Domain.Employee.Employee), request.EmployeeId);
