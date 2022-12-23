@@ -29,7 +29,7 @@ public class UpdateEmployeeCommandHandlerShould
         var result = await sut.Handle(command, CancellationToken.None);
 
         result.Error.Count.ShouldBeGreaterThan(0);
-        result.Error.All(error => error.Code == "value.not.valid").ShouldBeTrue();;
+        result.Error.All(error => error.Code == DomainErrors.InvalidName(It.IsNotNull<string>()).Code).ShouldBeTrue();;
     }
 
     [Theory]
