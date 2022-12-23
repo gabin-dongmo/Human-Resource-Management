@@ -3,6 +3,7 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using Bogus;
 using HRManagement.Modules.Personnel.Application.Contracts;
+using HRManagement.Modules.Personnel.Application.DTOs;
 using HRManagement.Modules.Personnel.Application.Features.Employee;
 using HRManagement.Modules.Personnel.Domain;
 using HRManagement.Modules.Personnel.Domain.Employee;
@@ -78,12 +79,13 @@ public class HireEmployeeCommandHandlerShould
         mockEmployeeRepo
             .Setup(d => d.CommitAsync())
             .Callback(() => employeesRepo.Add(BuildFakeEmployee(person)));
+        var employeesCount = employeesRepo.Count;
         var sut = fixture.Create<HireEmployeeCommandHandler>();
 
         var result = await sut.Handle(BuildFakeCommand(person), CancellationToken.None);
 
-        result.Value.ShouldBe(Guid.Empty);
-        employeesRepo.Count.ShouldBe(1);
+        result.Value.ShouldNotBeNull();
+        employeesRepo.Count.ShouldBe(employeesCount + 1);
     }
     
     private static IFixture SetFixture(out Mock<IEmployeeRepository> mockEmployeeRepo)
