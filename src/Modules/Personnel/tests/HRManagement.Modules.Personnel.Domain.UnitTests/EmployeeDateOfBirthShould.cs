@@ -12,6 +12,6 @@ public class EmployeeDateOfBirthShould
     {
         var dateCreation = DateOfBirth.Create(new Faker().Date.FutureDateOnly().ToString());
 
-        dateCreation.Error.ShouldNotBeNull();
+        dateCreation.Error.Count.ShouldBeGreaterThan(0);
     }    
 }

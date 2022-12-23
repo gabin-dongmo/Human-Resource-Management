@@ -19,7 +19,7 @@ public class GetEmployeeQueryHandlerShould
     public async Task ReturnEmployee_WhenEmployeeExists()
     {
         var fixture = SetFixture(out var mockEmployeeRepo, out var mockMapper);
-        var person = PrepareData();
+        var person = new Faker().Person;
         PrepareMocks(mockEmployeeRepo, mockMapper, person);
         var sut = fixture.Create<GetEmployeeQueryHandler>();
         var getEmployee = fixture.Create<GetEmployeeQuery>();
@@ -76,8 +76,6 @@ public class GetEmployeeQueryHandlerShould
         mockEmployeeRepo.Setup(d => d.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(employee);
         mockMapper.Setup(x => x.Map<EmployeeDto>(It.IsAny<Employee>())).Returns(employeeDto);
     }
-
-    private static Person PrepareData() => new Faker().Person;
 
     private static IFixture SetFixture(out Mock<IEmployeeRepository> mockEmployeeRepo, out Mock<IMapper> mockMapper)
     {

@@ -2,7 +2,7 @@
 
 namespace HRManagement.Modules.Personnel.Domain.Employee;
 
-public class Employee : Entity<Guid>
+public sealed class Employee : Entity<Guid>
 {
     public Name Name { get; private set; }
     public EmailAddress EmailAddress { get; private set; }
@@ -12,6 +12,7 @@ public class Employee : Entity<Guid>
 
     private Employee(Name name, EmailAddress emailAddress, DateOfBirth dateOfBirth)
     {
+        Id = Guid.NewGuid();
         Name = name;
         EmailAddress = emailAddress;
         DateOfBirth = dateOfBirth;

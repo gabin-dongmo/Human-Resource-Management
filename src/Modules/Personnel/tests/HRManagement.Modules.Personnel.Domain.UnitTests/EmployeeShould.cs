@@ -1,5 +1,6 @@
 using Bogus;
 using HRManagement.Modules.Personnel.Domain.Employee;
+using Shouldly;
 using Xunit;
 
 namespace HRManagement.Modules.Personnel.Domain.UnitTests;
@@ -22,7 +23,17 @@ public class EmployeeShould
             var employee = BuildFakeEmployee();
             employee.Update(name, emailAddress, dateOfBirth);
         });
-    }    
+    }
+
+    [Fact]
+    public void SetTerminationDate_OnTermination()
+    {
+        var employee = BuildFakeEmployee();
+        
+        employee.Terminate();
+
+        employee.TerminationDate.ShouldNotBeNull();
+    }
     
     private static Employee.Employee BuildFakeEmployee()
     {
@@ -33,7 +44,6 @@ public class EmployeeShould
             DateOfBirth.Create(person.DateOfBirth.ToString("d")).Value).Value;
         return employee;
     }
-
 }
 
 public class NameEmailAddressOrDOBTestData : TheoryData<Name, EmailAddress, DateOfBirth>

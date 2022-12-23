@@ -17,38 +17,51 @@ public class HireEmployeeCommandHandlerShould
 {
     [Theory]
     [ClassData(typeof(InvalidNameOnCreationTestData))]
-    public async Task ReturnError_WhenNameInvalid(HireEmployeeCommand hireEmployeeCommand)
+    public async Task ReturnError_WhenNameInvalid(string firstName, string lastName)
     {
         var fixture = SetFixture(out _);
+        var person = new Faker().Person;
+        var command = BuildFakeCommand(person);
+        command.FirstName = firstName;
+        command.LastName = lastName;
         var sut = fixture.Create<HireEmployeeCommandHandler>();
 
-        var result = await sut.Handle(hireEmployeeCommand, CancellationToken.None);
+        var result = await sut.Handle(command, CancellationToken.None);
 
-        result.Error.ShouldNotBeNull();
+        result.Error.Count.ShouldBeGreaterThan(0);
+        result.Error.All(error => error.Code == DomainErrors.InvalidName(It.IsNotNull<string>()).Code).ShouldBeTrue();
     }
 
     [Theory]
     [ClassData(typeof(InvalidEmailOnCreationTestData))]
-    public async Task ReturnError_WhenEmailInvalid(HireEmployeeCommand hireEmployeeCommand)
+    public async Task ReturnError_WhenEmailInvalid(string email)
     {
         var fixture = SetFixture(out _);
+        var person = new Faker().Person;
+        var command = BuildFakeCommand(person);
+        command.EmailAddress = email;
         var sut = fixture.Create<HireEmployeeCommandHandler>();
 
-        var result = await sut.Handle(hireEmployeeCommand, CancellationToken.None);
+        var result = await sut.Handle(command, CancellationToken.None);
 
-        result.Error.ShouldNotBeNull();
+        result.Error.Count.ShouldBeGreaterThan(0);
+        result.Error.All(error => error.Code == DomainErrors.InvalidEmailAddress(It.IsNotNull<string>()).Code).ShouldBeTrue();
     }
 
     [Theory]
     [ClassData(typeof(InvalidDateOfBirthTestData))]
-    public async Task ReturnError_WhenDateOfBirthInvalid(HireEmployeeCommand hireEmployeeCommand)
+    public async Task ReturnError_WhenDateOfBirthInvalid(string dateOfBirth)
     {
         var fixture = SetFixture(out _);
+        var person = new Faker().Person;
+        var command = BuildFakeCommand(person);
+        command.DateOfBirth = dateOfBirth;
         var sut = fixture.Create<HireEmployeeCommandHandler>();
 
-        var result = await sut.Handle(hireEmployeeCommand, CancellationToken.None);
+        var result = await sut.Handle(command, CancellationToken.None);
         
-        result.Error.ShouldNotBeNull();
+        result.Error.Count.ShouldBeGreaterThan(0);
+        result.Error.All(error => error.Code == DomainErrors.InvalidDate(It.IsNotNull<string>()).Code || error.Code == DomainErrors.DateOfBirthInFuture().Code).ShouldBeTrue();
     }
 
     [Fact]
@@ -63,12 +76,12 @@ public class HireEmployeeCommandHandlerShould
 
         var result = await sut.Handle(BuildFakeCommand(person), CancellationToken.None);
 
-        result.Error.ShouldNotBeNull();
-        result.Error.Code.ShouldBe(DomainErrors.ResourceAlreadyExists().Code);
+        result.Error.Count.ShouldBe(1);
+        result.Error.First().Code.ShouldBe(DomainErrors.ResourceAlreadyExists().Code);
     }
 
     [Fact]
-    public async Task StoreNewEmployeeAndReturnEmployeeId_WhenHiringSuccessful()
+    public async Task StoreNewEmployee_WhenHiringSuccessful()
     {
         var fixture = SetFixture(out var mockEmployeeRepo);
         var person = new Faker().Person;
@@ -117,43 +130,36 @@ public class HireEmployeeCommandHandlerShould
     }
 }
 
-public class InvalidDateOfBirthTestData : TheoryData<HireEmployeeCommand>
+public class InvalidDateOfBirthTestData : TheoryData<string>
 {
     public InvalidDateOfBirthTestData()
     {
-        var person = new Faker().Person;
-
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = null!});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = string.Empty});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = new Faker().Random.AlphaNumeric(9)});
+        Add(null!);
+        Add(string.Empty);
+        Add(new Faker().Random.AlphaNumeric(9));
+        Add(DateTime.Now.AddDays(1).ToString());
     }
 }
 
-public class InvalidEmailOnCreationTestData : TheoryData<HireEmployeeCommand>
+public class InvalidEmailOnCreationTestData : TheoryData<string>
 {
     public InvalidEmailOnCreationTestData()
     {
-        var person = new Faker().Person;
-
-        Add(new HireEmployeeCommand {EmailAddress = null!, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = string.Empty, FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = new Faker().Random.AlphaNumeric(9), FirstName = person.FirstName, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(null!);
+        Add(string.Empty);
+        Add(new Faker().Random.AlphaNumeric(9));
     }
 }
 
-public class InvalidNameOnCreationTestData : TheoryData<HireEmployeeCommand>
+public class InvalidNameOnCreationTestData : TheoryData<string, string>
 {
     public InvalidNameOnCreationTestData()
     {
         var person = new Faker().Person;
         
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = null!, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = string.Empty, LastName = person.LastName, DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = null!, LastName = new Faker().Random.AlphaNumeric(9), DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = string.Empty, LastName = new Faker().Random.AlphaNumeric(9), DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = person.FirstName, LastName = null!, DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = person.FirstName, LastName = string.Empty, DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = new Faker().Random.AlphaNumeric(9), LastName = null!, DateOfBirth = person.DateOfBirth.ToString("d")});
-        Add(new HireEmployeeCommand {EmailAddress = person.Email, FirstName = new Faker().Random.AlphaNumeric(9), LastName = string.Empty, DateOfBirth = person.DateOfBirth.ToString("d")});
+        Add(null!, person.LastName);
+        Add(string.Empty, person.LastName);
+        Add(person.FirstName, null!);
+        Add(person.FirstName, string.Empty);
     }
 }

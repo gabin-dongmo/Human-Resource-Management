@@ -5,7 +5,7 @@ using MediatR;
 
 namespace HRManagement.Modules.Personnel.Application.Features.Employee;
 
-public class UpdateEmployeeCommand : ICommand<Result<Unit, Error>>
+public class UpdateEmployeeCommand : ICommand<Result<Unit, List<Error>>>
 {
     public string EmployeeId { get; set; }
     public string FirstName { get; set; }

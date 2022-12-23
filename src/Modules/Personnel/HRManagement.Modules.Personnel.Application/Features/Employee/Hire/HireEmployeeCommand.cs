@@ -5,7 +5,7 @@ using HRManagement.Modules.Personnel.Domain;
 
 namespace HRManagement.Modules.Personnel.Application.Features.Employee;
 
-public class HireEmployeeCommand : ICommand<Result<EmployeeDto, Error>>
+public class HireEmployeeCommand : ICommand<Result<EmployeeDto, List<Error>>>
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
