@@ -3,7 +3,7 @@ using HRManagement.Common.Domain;
 
 namespace HRManagement.Modules.Personnel.Domain.Employee;
 
-public sealed class Employee : Common.Domain.Entity<Guid>
+public class Employee : Common.Domain.Entity<Guid>
 {
     public Name Name { get; private set; }
     public EmailAddress EmailAddress { get; private set; }
@@ -11,6 +11,10 @@ public sealed class Employee : Common.Domain.Entity<Guid>
     public DateOnly HireDate { get; }
     public DateOnly? TerminationDate { get; private set; }
 
+    private Employee()
+    {
+    }
+    
     private Employee(Name name, EmailAddress emailAddress, DateOfBirth dateOfBirth)
     {
         Id = Guid.NewGuid();

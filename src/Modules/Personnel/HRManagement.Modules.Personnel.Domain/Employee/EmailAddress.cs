@@ -9,6 +9,10 @@ public class EmailAddress : ValueObject
 {
     public string Email { get; }
 
+    private EmailAddress()
+    {
+    }
+
     private EmailAddress(string email)
     {
         Email = email;

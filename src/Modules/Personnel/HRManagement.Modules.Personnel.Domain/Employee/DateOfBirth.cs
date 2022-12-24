@@ -9,6 +9,10 @@ public class DateOfBirth : ValueObject
 {
     public DateOnly Date { get; }
 
+    private DateOfBirth()
+    {
+    }
+
     private DateOfBirth(DateOnly date)
     {
         Date = date;
