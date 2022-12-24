@@ -1,5 +1,7 @@
 using CSharpFunctionalExtensions;
+using HRManagement.Common.Domain;
 using HRManagement.Modules.Personnel.Domain.Employee.BusinessRules;
+using ValueObject = HRManagement.Common.Domain.ValueObject;
 
 namespace HRManagement.Modules.Personnel.Domain.Employee;
 

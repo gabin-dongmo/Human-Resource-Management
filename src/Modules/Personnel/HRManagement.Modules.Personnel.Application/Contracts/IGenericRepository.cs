@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using HRManagement.Modules.Personnel.Domain;
+using HRManagement.Common.Domain;
 
 namespace HRManagement.Modules.Personnel.Application.Contracts;
 

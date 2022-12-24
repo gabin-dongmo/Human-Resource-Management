@@ -1,4 +1,4 @@
-﻿using HRManagement.Modules.Personnel.Domain;
+﻿using HRManagement.Common.Domain;
 
 namespace HRManagement.Api.Models;
 

@@ -1,8 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
+using HRManagement.Common.Domain;
 
 namespace HRManagement.Modules.Personnel.Domain.Employee;
 
-public sealed class Employee : Entity<Guid>
+public sealed class Employee : Common.Domain.Entity<Guid>
 {
     public Name Name { get; private set; }
     public EmailAddress EmailAddress { get; private set; }
