@@ -5,13 +5,13 @@ namespace HRManagement.Modules.Personnel.Domain.Employee;
 
 public class Employee : Common.Domain.Entity<Guid>
 {
-    public Name Name { get; private set; }
-    public EmailAddress EmailAddress { get; private set; }
-    public DateOfBirth DateOfBirth { get; private set; }
+    public Name Name { get; private set; } = null!;
+    public EmailAddress EmailAddress { get; private set; } = null!;
+    public DateOfBirth DateOfBirth { get; private set; } = null!;
     public DateOnly HireDate { get; }
     public DateOnly? TerminationDate { get; private set; }
 
-    private Employee()
+    protected Employee()
     {
     }
     

@@ -7,9 +7,9 @@ namespace HRManagement.Modules.Personnel.Domain.Employee;
 
 public class EmailAddress : ValueObject
 {
-    public string Email { get; }
+    public string Email { get; } = null!;
 
-    private EmailAddress()
+    protected EmailAddress()
     {
     }
 

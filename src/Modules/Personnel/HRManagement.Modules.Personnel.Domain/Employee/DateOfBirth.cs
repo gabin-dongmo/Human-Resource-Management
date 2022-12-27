@@ -9,7 +9,7 @@ public class DateOfBirth : ValueObject
 {
     public DateOnly Date { get; }
 
-    private DateOfBirth()
+    protected DateOfBirth()
     {
     }
 
@@ -20,7 +20,7 @@ public class DateOfBirth : ValueObject
 
     public static Result<DateOfBirth, List<Error>> Create(string date)
     {
-        var errors = CheckForErrors(date, out var actualDate);
+        var errors = ValidateBusinessRules(date, out var actualDate);
         if (errors.Any()) return errors;
 
         return new DateOfBirth(actualDate);
@@ -31,7 +31,7 @@ public class DateOfBirth : ValueObject
         yield return Date;
     }
 
-    private static List<Error> CheckForErrors(string date, out DateOnly actualDate)
+    private static List<Error> ValidateBusinessRules(string date, out DateOnly actualDate)
     {
         var actualDateRule = CheckRule(new DateOfBirthMustBeActualDateRule(date));
         if (actualDateRule.IsFailure)
